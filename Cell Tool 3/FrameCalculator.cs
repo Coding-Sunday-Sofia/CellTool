@@ -23,103 +23,103 @@ using System.Threading.Tasks;
 
 namespace Cell_Tool_3
 {
-class FrameCalculator
-{
-    public int Frame(TifFileInfo fi)
+    class FrameCalculator
     {
-        //get Values
-
-        int fr = fi.frame + 1;
-        int Zstack = fi.zValue + 1;
-        int ColorStack = fi.cValue + 1;
-
-        int ColorStackCount = fi.sizeC;
-        int ZstackCount = fi.sizeZ;
-
-        //Calculate
-        int newFr = (fr - 1) * ColorStackCount * ZstackCount +
-                    (Zstack * ColorStackCount - (ColorStackCount - ColorStack)) - 1;
-
-        //Return results
-        return newFr;
-    }
-    public int FrameC(TifFileInfo fi,int C)
-    {
-        //get Values
-
-        int fr = fi.frame + 1;
-        int Zstack = fi.zValue + 1;
-        int ColorStack = C + 1;
-
-        int ColorStackCount = fi.sizeC;
-        int ZstackCount = fi.sizeZ;
-
-        //Calculate
-        int newFr = (fr - 1) * ColorStackCount * ZstackCount +
-                    (Zstack * ColorStackCount - (ColorStackCount - ColorStack)) - 1;
-
-        //Return results
-        return newFr;
-    }
-    public int[] FrameCalculateTZ(TifFileInfo fi, int C, int imageN)
-    {
-        int ColorStack = C + 1;
-        int ColorStackCount = fi.sizeC;
-        int ZstackCount = fi.sizeZ;
-        for (int i = fi.cValue; i < fi.imageCount; i+= fi.sizeC)
-            for (int fr = 1; fr <= fi.sizeT; fr++)
-                for (int Zstack = 1; Zstack <= ZstackCount; Zstack++)
-                {
-                    //Calculate
-                    int newFr = (fr - 1) * ColorStackCount * ZstackCount +
-                                (Zstack * ColorStackCount - (ColorStackCount - ColorStack)) - 1;
-                    //Return results
-                    if (newFr == imageN)
-                    {
-                        return new int[] {fr-1, Zstack - 1 };
-                    }
-                }
-        return new int[] { 0, 0};
-    }
-
-    public static int[] GetDimmensionMatrix(TifFileInfo fi)
-    {
-
-
-        //if (fi.dimensionOrder == "XYCZT") return null;
-
-        int[] res = new int[fi.imageCount];
-
-        switch (fi.dimensionOrder)
+        public int Frame(TifFileInfo fi)
         {
-        case "XYZCT":
-            int[] samp = new int[fi.sizeC * fi.sizeZ];
-            int n = 0;
-            for(int c = 0; c<fi.sizeC; c++)
-                for (int z = c; z < samp.Length; z+= fi.sizeC,n++)
-                {
-                    samp[z] = n;
-                }
+            //get Values
 
-            for (int t = 0; t<fi.imageCount; t+= samp.Length)
-            {
-                Array.Copy(samp, 0, res, t, samp.Length);
+            int fr = fi.frame + 1;
+            int Zstack = fi.zValue + 1;
+            int ColorStack = fi.cValue + 1;
 
-                for (int s = 0; s < samp.Length; s++)
-                    samp[s] += samp.Length;
-            }
+            int ColorStackCount = fi.sizeC;
+            int ZstackCount = fi.sizeZ;
 
-            samp = null;
-            break;
-        default:
-            for (int i = 0; i < fi.imageCount; i++)
-                res[i] = i;
-            break;
+            //Calculate
+            int newFr = (fr - 1) * ColorStackCount * ZstackCount +
+                        (Zstack * ColorStackCount - (ColorStackCount - ColorStack)) - 1;
+
+            //Return results
+            return newFr;
+        }
+        public int FrameC(TifFileInfo fi, int C)
+        {
+            //get Values
+
+            int fr = fi.frame + 1;
+            int Zstack = fi.zValue + 1;
+            int ColorStack = C + 1;
+
+            int ColorStackCount = fi.sizeC;
+            int ZstackCount = fi.sizeZ;
+
+            //Calculate
+            int newFr = (fr - 1) * ColorStackCount * ZstackCount +
+                        (Zstack * ColorStackCount - (ColorStackCount - ColorStack)) - 1;
+
+            //Return results
+            return newFr;
+        }
+        public int[] FrameCalculateTZ(TifFileInfo fi, int C, int imageN)
+        {
+            int ColorStack = C + 1;
+            int ColorStackCount = fi.sizeC;
+            int ZstackCount = fi.sizeZ;
+            for (int i = fi.cValue; i < fi.imageCount; i += fi.sizeC)
+                for (int fr = 1; fr <= fi.sizeT; fr++)
+                    for (int Zstack = 1; Zstack <= ZstackCount; Zstack++)
+                    {
+                        //Calculate
+                        int newFr = (fr - 1) * ColorStackCount * ZstackCount +
+                                    (Zstack * ColorStackCount - (ColorStackCount - ColorStack)) - 1;
+                        //Return results
+                        if (newFr == imageN)
+                        {
+                            return new int[] { fr - 1, Zstack - 1 };
+                        }
+                    }
+            return new int[] { 0, 0 };
         }
 
-        return res;
+        public static int[] GetDimmensionMatrix(TifFileInfo fi)
+        {
+
+
+            //if (fi.dimensionOrder == "XYCZT") return null;
+
+            int[] res = new int[fi.imageCount];
+
+            switch (fi.dimensionOrder)
+            {
+                case "XYZCT":
+                    int[] samp = new int[fi.sizeC * fi.sizeZ];
+                    int n = 0;
+                    for (int c = 0; c < fi.sizeC; c++)
+                        for (int z = c; z < samp.Length; z += fi.sizeC, n++)
+                        {
+                            samp[z] = n;
+                        }
+
+                    for (int t = 0; t < fi.imageCount; t += samp.Length)
+                    {
+                        Array.Copy(samp, 0, res, t, samp.Length);
+
+                        for (int s = 0; s < samp.Length; s++)
+                            samp[s] += samp.Length;
+                    }
+
+                    samp = null;
+                    break;
+                default:
+                    for (int i = 0; i < fi.imageCount; i++)
+                        res[i] = i;
+                    break;
+            }
+
+            return res;
+
+        }
 
     }
-
-}
 }

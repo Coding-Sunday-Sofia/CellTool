@@ -23,32 +23,34 @@ using System.Threading.Tasks;
 
 namespace Cell_Tool_3
 {
-//create new control
-class ChangeValueControl
-{
-    //add event handler
-    public event ChangedValueEventHandler Changed;
-    //function for changing value
-    public void ChangeValueFunction(string Value)
+    //create new control
+    class ChangeValueControl
     {
-        if (Changed != null)
-            Changed(this, new ChangeValueEventArgs(Value));
-    }
-}
-//declare event handler
-public delegate void ChangedValueEventHandler(object sender, ChangeValueEventArgs e);
-//declare new event arg
-public class ChangeValueEventArgs : EventArgs
-{
-    private string m_Data;
-    public ChangeValueEventArgs(string myData)
-    {
-        m_Data = myData;
-    }
-    public string Value {
-        get {
-            return m_Data;
+        //add event handler
+        public event ChangedValueEventHandler Changed;
+        //function for changing value
+        public void ChangeValueFunction(string Value)
+        {
+            if (Changed != null)
+                Changed(this, new ChangeValueEventArgs(Value));
         }
     }
-}
+    //declare event handler
+    public delegate void ChangedValueEventHandler(object sender, ChangeValueEventArgs e);
+    //declare new event arg
+    public class ChangeValueEventArgs : EventArgs
+    {
+        private string m_Data;
+        public ChangeValueEventArgs(string myData)
+        {
+            m_Data = myData;
+        }
+        public string Value
+        {
+            get
+            {
+                return m_Data;
+            }
+        }
+    }
 }
