@@ -25,131 +25,131 @@ using System.Windows.Forms;
 
 namespace Cell_Tool_3
 {
-    class TabPage
+class TabPage
+{
+    public int FileTypeIndex;
+    // add here different tab pages
+    public TifFileInfo tifFI = null;
+    public ResultsExtractor ResultsExtractor = null;
+    public string dir = "";
+
+    public Panel CorePanel = new Panel();
+
+    //save page options
+    public bool Saved = true;
+    public List<string> History = new List<string>();
+
+    public void Save(ImageAnalyser IA)
     {
-        public int FileTypeIndex;
-        // add here different tab pages
-        public TifFileInfo tifFI = null;
-        public ResultsExtractor ResultsExtractor = null;
-        public string dir = "";
-
-        public Panel CorePanel = new Panel();
-       
-        //save page options
-        public bool Saved = true;
-        public List<string> History = new List<string>();
-        
-        public void Save(ImageAnalyser IA)
+        TifFileInfo tifFI = this.tifFI;
+        if (tifFI != null)
         {
-            TifFileInfo tifFI = this.tifFI;
-            if (tifFI != null)
+
+            if (!tifFI.available)
             {
+                MessageBox.Show("Image is not avaliable!\nTry again later.");
+                return;
+            }
 
-                if (!tifFI.available)
-                {
-                    MessageBox.Show("Image is not avaliable!\nTry again later.");
-                    return;
-                }
+            string dir = tifFI.Dir;
+            //background worker
+            var bgw = new BackgroundWorker();
+            bgw.WorkerReportsProgress = true;
+            //Add handlers to the backgroundworker
+            //Reports when is finished
 
-                string dir = tifFI.Dir;
-                //background worker
-                var bgw = new BackgroundWorker();
-                bgw.WorkerReportsProgress = true;
-                //Add handlers to the backgroundworker
-                //Reports when is finished
-
-                bgw.DoWork += new DoWorkEventHandler(delegate (Object o, DoWorkEventArgs a)
-                {
-                    FileEncoder.SaveTif(tifFI, dir, IA);
+            bgw.DoWork += new DoWorkEventHandler(delegate (Object o, DoWorkEventArgs a)
+            {
+                FileEncoder.SaveTif(tifFI, dir, IA);
                 //report progress
                 ((BackgroundWorker)o).ReportProgress(0);
-                });
+            });
 
-                bgw.ProgressChanged += new ProgressChangedEventHandler(delegate (Object o, ProgressChangedEventArgs a)
+            bgw.ProgressChanged += new ProgressChangedEventHandler(delegate (Object o, ProgressChangedEventArgs a)
+            {
+                if (a.ProgressPercentage == 0)
                 {
-                    if (a.ProgressPercentage == 0)
-                    {
-                        Saved = true;
-                        if (tifFI != null)
-                            tifFI.available = true;
-                        IA.FileBrowser.StatusLabel.Text = "Ready";
-                    }
-                });
-
-                //Start background worker
-                tifFI.available = false;
-                IA.FileBrowser.StatusLabel.Text = "Saving Tif Image...";
-
-                IA.EnabletrackBars(false);
-                bgw.RunWorkerAsync();
-                //continue when the sae is done
-                while (bgw.IsBusy)
-                {
-                    Application.DoEvents(); //This call is very important if you want to have a progress bar and want to update it
-                                            //from the Progress event of the background worker.
-                    Thread.Sleep(10);     //This call waits if the loop continues making sure that the CPU time gets freed before
-                                          //re-checking.
+                    Saved = true;
+                    if (tifFI != null)
+                        tifFI.available = true;
+                    IA.FileBrowser.StatusLabel.Text = "Ready";
                 }
+            });
 
-                IA.EnabletrackBars(true);
-            }
-            else if(ResultsExtractor != null)
-            {
-                var bgw = ResultsExtractor.FileSaver.SaveCTDataFile(
-                    (Cell_Tool_3.ResultsExtractor.MyForm)
-                    this.ResultsExtractor.myPanel, dir);
+            //Start background worker
+            tifFI.available = false;
+            IA.FileBrowser.StatusLabel.Text = "Saving Tif Image...";
 
-                //continue when the sae is done
-                while (bgw.IsBusy)
-                {
-                    Application.DoEvents(); //This call is very important if you want to have a progress bar and want to update it
-                                            //from the Progress event of the background worker.
-                    Thread.Sleep(10);     //This call waits if the loop continues making sure that the CPU time gets freed before
-                                          //re-checking.
-                }
+            IA.EnabletrackBars(false);
+            bgw.RunWorkerAsync();
+            //continue when the sae is done
+            while (bgw.IsBusy)
+            {
+                Application.DoEvents(); //This call is very important if you want to have a progress bar and want to update it
+                //from the Progress event of the background worker.
+                Thread.Sleep(10);     //This call waits if the loop continues making sure that the CPU time gets freed before
+                //re-checking.
+            }
 
-            }
+            IA.EnabletrackBars(true);
         }
-        public void Visible(bool status)
+        else if(ResultsExtractor != null)
         {
-            //hide if false and show if true
-            if (tifFI != null)
-                tifFI.tpTaskbar.TopBar.Visible = status;
-            
-        }
-        public void Delete()
-        {
-            CorePanel.Dispose();
-            ResultsExtractor = null;
-            if (tifFI != null)
+            var bgw = ResultsExtractor.FileSaver.SaveCTDataFile(
+                          (Cell_Tool_3.ResultsExtractor.MyForm)
+                          this.ResultsExtractor.myPanel, dir);
+
+            //continue when the sae is done
+            while (bgw.IsBusy)
             {
-                tifFI.tpTaskbar.TopBar.Dispose();
-                //Release resurse for Tif image
-                tifFI.Delete();
-                tifFI = null;
+                Application.DoEvents(); //This call is very important if you want to have a progress bar and want to update it
+                //from the Progress event of the background worker.
+                Thread.Sleep(10);     //This call waits if the loop continues making sure that the CPU time gets freed before
+                //re-checking.
             }
-            if (ResultsExtractor != null)
-            {
-                ResultsExtractor.myPanel.Dispose();
-                ResultsExtractor = null;
-            }
-        }
-        public void OpenFile (int FileType)
-        {
-            FileTypeIndex = FileType;
-            switch (FileType)
-            {
-                case 0:
-                    tifFI = new TifFileInfo();
-                    break;
-                case 3:
-                    tifFI = null;
-                    Saved = false;
-                    break;
-                default:
-                    tifFI = new TifFileInfo();
-                    break;
-            }
+
         }
     }
+    public void Visible(bool status)
+    {
+        //hide if false and show if true
+        if (tifFI != null)
+            tifFI.tpTaskbar.TopBar.Visible = status;
+
+    }
+    public void Delete()
+    {
+        CorePanel.Dispose();
+        ResultsExtractor = null;
+        if (tifFI != null)
+        {
+            tifFI.tpTaskbar.TopBar.Dispose();
+            //Release resurse for Tif image
+            tifFI.Delete();
+            tifFI = null;
+        }
+        if (ResultsExtractor != null)
+        {
+            ResultsExtractor.myPanel.Dispose();
+            ResultsExtractor = null;
+        }
+    }
+    public void OpenFile (int FileType)
+    {
+        FileTypeIndex = FileType;
+        switch (FileType)
+        {
+        case 0:
+            tifFI = new TifFileInfo();
+            break;
+        case 3:
+            tifFI = null;
+            Saved = false;
+            break;
+        default:
+            tifFI = new TifFileInfo();
+            break;
+        }
+    }
+}
 }

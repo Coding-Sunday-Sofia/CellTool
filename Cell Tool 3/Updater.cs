@@ -27,89 +27,89 @@ using System.Net;
 
 namespace Cell_Tool_3
 {
-    class Updater
+class Updater
+{
+    public static void UpdateSettings()
     {
-        public static void UpdateSettings()
+        //This will load settings from the previous version
+        if (Properties.Settings.Default.UpdateSettings)
         {
-            //This will load settings from the previous version
-            if (Properties.Settings.Default.UpdateSettings)
-            {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.UpdateSettings = false;
-                Properties.Settings.Default.Save();
-            }
-            //Check for update
-            CheckForUpdateWhenStarts();
+            Properties.Settings.Default.Upgrade();
+            Properties.Settings.Default.UpdateSettings = false;
+            Properties.Settings.Default.Save();
         }
-        private static void LicenseAgreement()
-        {
-            if (Properties.Settings.Default.ShowLicense)
-            {
-                Form msgForm = new Form();
-
-                msgForm.Height = 600;
-                msgForm.Width = 600;
-                msgForm.Icon = Properties.Resources.CT_done;
-                msgForm.Text = "CellTool License Agreement";
-
-                RichTextBox rtb = new RichTextBox();
-                rtb.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(link_LinkClicked);
-                rtb.Dock = DockStyle.Fill;
-                rtb.ReadOnly = true;
-                rtb.Text = Properties.Resources.LicenseAgreementCT;
-
-                msgForm.Controls.Add(rtb);
-
-                Panel okBox = new Panel();
-                okBox.Height = 40;
-                okBox.Dock = DockStyle.Bottom;
-                msgForm.Controls.Add(okBox);
-
-                Button okBtn = new Button();
-                okBtn.Text = "Agree";
-                okBtn.BackColor = System.Drawing.SystemColors.ButtonFace;
-                okBtn.ForeColor = System.Drawing.Color.Black;
-                okBtn.Location = new System.Drawing.Point(20, 10);
-                okBtn.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-                okBox.Controls.Add(okBtn);
-
-                Button cancelBtn = new Button();
-                cancelBtn.Text = "Decline";
-                cancelBtn.BackColor = System.Drawing.SystemColors.ButtonFace;
-                cancelBtn.Location = new System.Drawing.Point(msgForm.Width - cancelBtn.Width - 40, 10);
-                cancelBtn.ForeColor = System.Drawing.Color.Black;
-                cancelBtn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                okBox.Controls.Add(cancelBtn);
-
-                okBtn.Click += new EventHandler(delegate (object sender, EventArgs e)
-                {
-                    Properties.Settings.Default.ShowLicense = false;
-                    Properties.Settings.Default.Save();
-                    msgForm.Close();
-                });
-
-                cancelBtn.Click += new EventHandler(delegate (object sender, EventArgs e)
-                {
-                    msgForm.Close();
-                });
-                
-                msgForm.ShowDialog();
-                msgForm.Dispose();
-            }
-
-            if (Properties.Settings.Default.ShowLicense)
-            {
-                Environment.Exit(0);
-            }
-        }
-        private static void link_LinkClicked(object sender, LinkClickedEventArgs e)
-        {
-            System.Diagnostics.Process.Start(e.LinkText);
-        }
-        private static void CheckForUpdateWhenStarts()
-        {
-            LicenseAgreement();
-        }
-  
+        //Check for update
+        CheckForUpdateWhenStarts();
     }
+    private static void LicenseAgreement()
+    {
+        if (Properties.Settings.Default.ShowLicense)
+        {
+            Form msgForm = new Form();
+
+            msgForm.Height = 600;
+            msgForm.Width = 600;
+            msgForm.Icon = Properties.Resources.CT_done;
+            msgForm.Text = "CellTool License Agreement";
+
+            RichTextBox rtb = new RichTextBox();
+            rtb.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(link_LinkClicked);
+            rtb.Dock = DockStyle.Fill;
+            rtb.ReadOnly = true;
+            rtb.Text = Properties.Resources.LicenseAgreementCT;
+
+            msgForm.Controls.Add(rtb);
+
+            Panel okBox = new Panel();
+            okBox.Height = 40;
+            okBox.Dock = DockStyle.Bottom;
+            msgForm.Controls.Add(okBox);
+
+            Button okBtn = new Button();
+            okBtn.Text = "Agree";
+            okBtn.BackColor = System.Drawing.SystemColors.ButtonFace;
+            okBtn.ForeColor = System.Drawing.Color.Black;
+            okBtn.Location = new System.Drawing.Point(20, 10);
+            okBtn.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            okBox.Controls.Add(okBtn);
+
+            Button cancelBtn = new Button();
+            cancelBtn.Text = "Decline";
+            cancelBtn.BackColor = System.Drawing.SystemColors.ButtonFace;
+            cancelBtn.Location = new System.Drawing.Point(msgForm.Width - cancelBtn.Width - 40, 10);
+            cancelBtn.ForeColor = System.Drawing.Color.Black;
+            cancelBtn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            okBox.Controls.Add(cancelBtn);
+
+            okBtn.Click += new EventHandler(delegate (object sender, EventArgs e)
+            {
+                Properties.Settings.Default.ShowLicense = false;
+                Properties.Settings.Default.Save();
+                msgForm.Close();
+            });
+
+            cancelBtn.Click += new EventHandler(delegate (object sender, EventArgs e)
+            {
+                msgForm.Close();
+            });
+
+            msgForm.ShowDialog();
+            msgForm.Dispose();
+        }
+
+        if (Properties.Settings.Default.ShowLicense)
+        {
+            Environment.Exit(0);
+        }
+    }
+    private static void link_LinkClicked(object sender, LinkClickedEventArgs e)
+    {
+        System.Diagnostics.Process.Start(e.LinkText);
+    }
+    private static void CheckForUpdateWhenStarts()
+    {
+        LicenseAgreement();
+    }
+
+}
 }
